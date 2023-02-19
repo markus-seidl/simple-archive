@@ -25,6 +25,8 @@ class ListArchives:
         all_archives = self.db.get_all_archives()
         all_archives.sort()
 
+        sum_compressed_file_size = 0
+        sum_original_file_size = 0
         for archive in all_archives:
             if os.path.isfile(archive) or archive.startswith(".") or archive.startswith("_"):
                 continue
@@ -53,6 +55,11 @@ class ListArchives:
                 file_size_format(bi.compressed_file_size),
                 "%.02f" % (bi.compressed_file_size / bi.original_file_size)
             )
+            sum_compressed_file_size = bi.compressed_file_size
+            sum_original_file_size = bi.original_file_size
 
         console = Console()
         console.print(table)
+
+        ratio = sum_compressed_file_size / sum_original_file_size
+        print("Overall ratio: %.02f" % ratio)

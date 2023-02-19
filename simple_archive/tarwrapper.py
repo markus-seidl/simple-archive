@@ -3,10 +3,11 @@ import logging
 import threading
 import os
 import time
+import tqdm
 
 from base_wrapper import Wrapper
 from exe_paths import TAR
-from common import file_size_format, report_performance_bytes
+from common import file_size_format, report_performance_bytes, get_size_of_directory
 
 COMPRESS_TAR_BACKUP_FULL_CMD = \
     '{cmd} cv {excludes} ' \
@@ -34,7 +35,7 @@ class TarWrapper(Wrapper):
 
         cmd = COMPRESS_TAR_BACKUP_FULL_CMD.format(
             cmd=TAR,
-            excludes="",
+            excludes=exclude_cmd,
             backup_name=backup_name,
             output_file=output_file,
             source=directory,
@@ -45,25 +46,29 @@ class TarWrapper(Wrapper):
 
         start_piping = time.time()
         last_report_time = start_piping
+        logging.info("Calculating size of directory...")
+        original_size = get_size_of_directory(directory)
 
-        while True:
-            bytes_written = -1
-            if os.path.exists(output_file):
-                bytes_written = os.path.getsize(output_file)
+        with tqdm.tqdm(total=original_size, unit="B", unit_scale=True, unit_divisor=1024) as pbar:
+            while True:
+                bytes_written = -1
+                if os.path.exists(output_file):
+                    bytes_written = os.path.getsize(output_file)
 
-            if time.time() - last_report_time >= 1 and bytes_written > 0:
-                last_report_time = time.time()
-                logging.info(f"Tar written {file_size_format(bytes_written)}")
+                pbar.update(bytes_written - pbar.n)
+                pbar.desc = f"Tar"
 
-            time.sleep(0.1)
+                time.sleep(0.1)
 
-            if p.poll() is not None:
-                break
+                if p.poll() is not None:
+                    break
 
-        output_stdout, output_stderr = p.communicate()
+            pbar.update(pbar.total - pbar.n)  # make sure we reach 100%, user confusion otherwise
 
-        if p.returncode != 0:
-            raise OSError(output_stderr)
+            output_stdout, output_stderr = p.communicate()
+
+            if p.returncode != 0:
+                raise OSError(output_stderr)
 
         bytes_written = os.path.getsize(output_file)
         logging.info("Tar done with " + report_performance_bytes(start_piping, bytes_written))

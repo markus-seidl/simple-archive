@@ -43,3 +43,10 @@ def report_performance_bytes_ratio(start_time: float, original_bytes: int, compr
     ratio_percent = "%2.0f%%" % ((compressed_bytes / original_bytes) * 100.0)
     return f"{file_size_format(compressed_bytes)} in {elapsed_time_str}s " \
            f"= {file_size_format(performance)}/s Ratio {ratio_percent}"
+
+
+def get_size_of_directory(directory: str) -> int:
+    size = 0
+    for root, dirs, files in os.walk(directory):
+        size += sum([os.path.getsize(os.path.join(root, name)) for name in files])
+    return size

@@ -30,6 +30,15 @@ class ListArchives:
                 continue
 
             bi = self.db.read_backup_info(archive)
+            if bi is None:
+                table.add_row(
+                    "-",
+                    archive,
+                    "-",
+                    "-",
+                    "-"
+                )
+
             duration_s = bi.time_end - bi.time_start
             if duration_s > 3600:
                 pp_duration = "%.02fh" % (duration_s / 60.0 / 60.0)

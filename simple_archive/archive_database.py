@@ -1,6 +1,7 @@
 import json
 import os
 import datetime
+import typing
 
 from config import BackupInfo
 
@@ -29,7 +30,10 @@ class ArchiveDatabase:
     def get_all_archives(self):
         return os.listdir(self.database_dir)
 
-    def read_backup_info(self, archive_name: str) -> BackupInfo:
+    def read_backup_info(self, archive_name: str) -> typing.Optional[BackupInfo]:
         info_file = self.create_file_path_in_archive_log(archive_name, "info.json")
+        if not os.path.exists(info_file):
+            return None
+
         with open(info_file, "r") as f:
             return BackupInfo.from_json(json.load(f))

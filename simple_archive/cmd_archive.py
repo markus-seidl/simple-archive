@@ -62,8 +62,6 @@ class Archive:
             tar_output_file = os.path.join(self.config.temp_dir, directory + ".tar")
 
             tar_log = self.db.create_file_path_in_archive_log(directory, "tar.log")
-            if os.path.exists(tar_output_file):
-                raise OSError(f"Output file {tar_output_file} already exists")
             self.tar.compress_directory(input_directory, directory, tar_output_file, tar_log, self.config.excludes)
             self.tar.write_contents_to(
                 tar_output_file, self.db.create_file_path_in_archive_log(directory, "tar_contents.txt")

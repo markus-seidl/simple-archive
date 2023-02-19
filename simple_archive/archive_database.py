@@ -21,7 +21,7 @@ class ArchiveDatabase:
         return os.path.exists(os.path.join(self.database_dir, archive_name))
 
     def is_finished(self, archive_name: str):
-        return os.path.exists(os.path.join(self.database_dir, archive_name, "done"))
+        return os.path.exists(os.path.join(self.database_dir, archive_name, "info.json"))
 
     def finish(self, archive_name, backup_info: BackupInfo):
         with open(os.path.join(self.database_dir, archive_name, "info.json"), "w") as f:

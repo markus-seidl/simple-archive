@@ -29,6 +29,9 @@ class TarWrapper(Wrapper):
             for exclude in excludes:
                 exclude_cmd += f' --exclude "{exclude[0]}"'
 
+        if os.path.exists(output_file):
+            os.remove(output_file)
+
         cmd = COMPRESS_TAR_BACKUP_FULL_CMD.format(
             cmd=TAR,
             excludes="",

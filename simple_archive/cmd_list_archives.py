@@ -4,7 +4,7 @@ from config import ListArchivesConfig
 from archive_database import ArchiveDatabase
 
 from rich.console import Console
-from rich.table import Table
+from rich.table import Table, StyleType
 
 from common import file_size_format
 
@@ -18,9 +18,9 @@ class ListArchives:
         table = Table(title="Archives")
         table.add_column("Archive Date")
         table.add_column("Name", no_wrap=True)
-        table.add_column("Duration")
-        table.add_column("Compressed Size")
-        table.add_column("Ratio")
+        table.add_column("Duration", justify="right")
+        table.add_column("Compressed Size", justify="right")
+        table.add_column("Ratio", justify="right")
 
         all_archives = self.db.get_all_archives()
         all_archives.sort()
@@ -48,11 +48,12 @@ class ListArchives:
             else:
                 pp_duration = "%.02fm" % (duration_s / 60.0)
 
+            size_gb = bi.compressed_file_size / 1024.0 / 1024.0 / 1024.0
             table.add_row(
                 datetime.fromtimestamp(bi.time_start).strftime('%Y-%m-%d %H:%M:%S'),
                 archive,
                 pp_duration,
-                file_size_format(bi.compressed_file_size),
+                "%03.3f GB" % size_gb,
                 "%.02f" % (bi.compressed_file_size / bi.original_file_size)
             )
             sum_compressed_file_size = bi.compressed_file_size

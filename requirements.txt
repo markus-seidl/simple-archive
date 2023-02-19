@@ -1,0 +1,3 @@
+paramiko  # SSH client library
+tqdm  # progress bar
+

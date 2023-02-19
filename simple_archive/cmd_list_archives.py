@@ -1,12 +1,12 @@
 from datetime import datetime
 import os
 from config import ListArchivesConfig
-from simple_archive.archive_database import ArchiveDatabase
+from archive_database import ArchiveDatabase
 
 from rich.console import Console
 from rich.table import Table
 
-from simple_archive.common import file_size_format
+from common import file_size_format
 
 
 class ListArchives:

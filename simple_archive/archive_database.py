@@ -2,7 +2,7 @@ import json
 import os
 import datetime
 
-from simple_archive.config import BackupInfo
+from config import BackupInfo
 
 
 class ArchiveDatabase:
@@ -25,6 +25,7 @@ class ArchiveDatabase:
     def finish(self, archive_name, backup_info: BackupInfo):
         with open(os.path.join(self.database_dir, archive_name, "info.json"), "w") as f:
             f.write(backup_info.to_json())
+
     def get_all_archives(self):
         return os.listdir(self.database_dir)
 

@@ -38,6 +38,7 @@ class ListArchives:
                     "-",
                     "-"
                 )
+                continue
 
             duration_s = bi.time_end - bi.time_start
             if duration_s > 3600:

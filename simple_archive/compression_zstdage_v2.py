@@ -70,8 +70,5 @@ class ZstdAgeV2(Compression):
 
         os.remove(input_file)
 
-        # compute md5sum of output file using the md5sum binary
-        return ""
-
     def overall_compression_ratio(self) -> float:
         return self.all_bytes_read / float(self.all_bytes_written)

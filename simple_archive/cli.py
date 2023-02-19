@@ -1,12 +1,11 @@
 import logging
 
 import argparse
-import datetime
-import os
 
-from config import ArchiveConfig, DecompressConfig
+from config import ArchiveConfig, DecompressConfig, ListArchivesConfig
 from cmd_archive import Archive
 from cmd_decompress import Decompress
+from cmd_list_archives import ListArchives
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.INFO, datefmt='%I:%M:%S')
 
@@ -34,12 +33,16 @@ def do():
     decompress.add_argument("--dest", help="Dest directory", required=True)
     decompress.add_argument("--password-file", help="Password in plain text as file", default="./password.age")
 
+    list_archives = subparsers.add_parser("list-archives")
+
     args = parser.parse_args()
 
     if args.command == 'archive':
         do_archive(args)
     elif args.command == "decompress":
         do_decompress(args)
+    elif args.command == "list-archives":
+        do_list_archives(args)
     else:
         parser.print_help()
 
@@ -67,6 +70,13 @@ def do_decompress(args):
     )
 
     Decompress(config).do()
+
+
+def do_list_archives(args):
+    config = ListArchivesConfig(
+        database_dir=args.database
+    )
+    ListArchives(config).do()
 
 
 if __name__ == '__main__':

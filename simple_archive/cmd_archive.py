@@ -1,5 +1,7 @@
 import os
-from config import ArchiveConfig
+import time
+
+from config import ArchiveConfig, BackupInfo
 from archive_database import ArchiveDatabase
 from compression_zstdage_v2 import ZstdAgeV2
 from sftp import SFTPUpload
@@ -7,12 +9,6 @@ import logging
 import util
 from tarwrapper import TarWrapper
 import threading
-
-
-def calculate_and_save_sha256(input_file: str, output_file: str):
-    s = util.sha256_sum(input_file)
-    with open(output_file, "w") as f:
-        f.write(s)
 
 
 def get_single_file(directory: str):
@@ -39,6 +35,7 @@ class Archive:
         self.db = ArchiveDatabase(self.config.database_dir)
         self.compress = ZstdAgeV2(config)
         self.upload = SFTPUpload(config.sftp_host, config.sftp_user, root_server_path=config.sftp_root_path)
+        self.last_sha256 = None
 
     def do(self):
         # get all directories in config.source
@@ -53,6 +50,7 @@ class Archive:
                 continue
 
             self.db.create_archive_log(directory)
+            archive_time_start = int(time.time())
             logging.info("*" * 80)
             logging.info(f"Archiving directory {directory}")
             input_directory = os.path.join(self.config.source_dir, directory)
@@ -73,7 +71,10 @@ class Archive:
 
             # Compression
             c_output_file = tar_output_file + ".zst.age"
+            tar_file_size = os.path.getsize(tar_output_file)
             self.compress.do(tar_output_file, c_output_file)
+
+            compressed_file_size = os.path.getsize(c_output_file)
 
             # SHA256 in background
             sha256_future = self.sha256_sum_async(
@@ -91,15 +92,26 @@ class Archive:
             # Delete scratch file
             os.remove(c_output_file)
 
-            self.db.finish(directory)
+            backup_info = BackupInfo(
+                time_start=archive_time_start,
+                time_end=int(time.time()),
+                original_file_size=tar_file_size,
+                compressed_file_size=compressed_file_size,
+                compressed_sha256=self.last_sha256,
+            )
+            self.last_sha256 = None
+            self.db.finish(directory, backup_info)
             logging.info(f"Finished archiving {directory}")
 
     def sha256_sum_async(self, input_file: str, output_file: str) -> threading.Thread:
         download_thread = threading.Thread(
-            target=calculate_and_save_sha256, name="Downloader", args=[input_file, output_file]
+            target=self.calculate_and_save_sha256, name="Downloader", args=[input_file]
         )
         download_thread.start()
         return download_thread
+
+    def calculate_and_save_sha256(self, input_file: str):
+        self.last_sha256 = util.sha256_sum(input_file)
 
     def handle_single_file_contents(self, src_directory: str, archive_name: str):
         """

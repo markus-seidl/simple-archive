@@ -21,8 +21,9 @@ age-keygen -o age-key-file
 ### How to install?
 
 1) Download repository
-2) Install requirements: `tar`, `zstd`, `age` (>= 1.0.0), `md5sum`,  `python3`(> 3.8)
-    * Often you can just write the command in the shell and the system will tell you what package to install
+2) Install requirements: `tar`, `zstd`, `age` (>= 1.0.0), `md5sum`, `python3`(> 3.8)
+    * Often you can just write the command in the shell and the system will tell you what package to install or you
+      can just `brew install` them.
 3) Install python requirements: `pip3 install -r requirements.txt` (pip or pip3, depending on your system)
     * My recommendation would be to use a venv
       environment: `python3 -m venv venv && source venv/bin/activate && pip3 install -r requirements.txt --upgrade`
@@ -35,4 +36,6 @@ Both tools are very fast and easy to use. Zstd is a very fast compressor and age
 easy to use encryption tool, which is also very fast.
 With these tools you can easily achieve >100MB/s compression and encryption speed on relatively 
 old hardware (for example Core i5-4670)
-
+For archival storage 7z would also be a good choice, as it has very good compression and speed doesn't matter that
+much. I re-used the code from simple-butcher and zstd also has a better cli interface than 7z. Compression ratio wise
+these two tools are very similar and only differ by a few percent.

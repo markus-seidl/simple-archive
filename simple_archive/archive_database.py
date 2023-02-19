@@ -1,5 +1,8 @@
+import json
 import os
 import datetime
+
+from simple_archive.config import BackupInfo
 
 
 class ArchiveDatabase:
@@ -19,6 +22,13 @@ class ArchiveDatabase:
     def is_finished(self, archive_name: str):
         return os.path.exists(os.path.join(self.database_dir, archive_name, "done"))
 
-    def finish(self, directory):
-        with open(os.path.join(self.database_dir, directory, "done"), "w") as f:
-            f.write(str(datetime.datetime.now()))
+    def finish(self, archive_name, backup_info: BackupInfo):
+        with open(os.path.join(self.database_dir, archive_name, "info.json"), "w") as f:
+            f.write(backup_info.to_json())
+    def get_all_archives(self):
+        return os.listdir(self.database_dir)
+
+    def read_backup_info(self, archive_name: str) -> BackupInfo:
+        info_file = self.create_file_path_in_archive_log(archive_name, "info.json")
+        with open(info_file, "r") as f:
+            return BackupInfo.from_json(json.load(f))

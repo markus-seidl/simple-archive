@@ -56,11 +56,13 @@ class ListArchives:
                 "%03.3f GB" % size_gb,
                 "%.02f" % (bi.compressed_file_size / bi.original_file_size)
             )
-            sum_compressed_file_size = bi.compressed_file_size
-            sum_original_file_size = bi.original_file_size
+            sum_compressed_file_size += bi.compressed_file_size
+            sum_original_file_size += bi.original_file_size
 
         console = Console()
         console.print(table)
 
         ratio = sum_compressed_file_size / sum_original_file_size
-        print("Overall ratio: %.02f" % ratio)
+        print("Overall ratio: %.02f ( %s / %s )" % (
+            ratio, file_size_format(sum_compressed_file_size), file_size_format(sum_original_file_size)
+        ))
